@@ -1,0 +1,45 @@
+name: Daily Activity Bot
+
+on:
+  schedule:
+    - cron: "30 3 * * *"  # Runs daily at 9:00 AM IST
+  workflow_dispatch:       # Allows manual trigger too
+
+permissions:
+  contents: write
+
+jobs:
+  daily-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Make daily commit
+        run: |
+          git config user.name "Shantunu-19"
+          git config user.email "your-email@gmail.com"
+
+          # Random commit count 1 or 2
+          COUNT=$((RANDOM % 2 + 1))
+
+          MESSAGES=(
+            "chore: update daily log"
+            "docs: add daily notes"
+            "chore: routine maintenance"
+            "docs: daily progress update"
+            "chore: sync activity log"
+            "docs: update learning tracker"
+            "chore: daily checkpoint"
+            "docs: notes for the day"
+          )
+
+          for i in $(seq 1 $COUNT); do
+            MSG=${MESSAGES[$RANDOM % ${#MESSAGES[@]}]}
+            echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') - $MSG" >> log.txt
+            git add log.txt
+            git commit -m "$MSG - $(date +%F)"
+          done
+
+          git push
